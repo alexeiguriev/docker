@@ -1,0 +1,5 @@
+
+docker build -t <image name> .              -- create a image
+docker images                               -- check the images
+docker run -d <immage name>                 -- run docker image
+docker logs -f abcd1234efgh                 -- to see the logs
