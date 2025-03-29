@@ -1,0 +1,6 @@
+docker build -t c-port-listener .
+docker run -d -p 8080:8080 --name port_listener c-port-listener
+
+
+curl -d "Hello from curl!" http://localhost:8080
+cat /home/alexeigu/test/docker/logs/received_messages.log
