@@ -45,12 +45,12 @@ void handle_client(int client_socket) {
         "Mirror: %s \n";
 
     // Calculate the length of the response content
-    int response_length = snprintf(NULL, 0, http_response_template,
-            (int)strlen(body) + (int)strlen("Mirror: \n"), body);
+    int response_length = snprintf(NULL, 0, http_response_template, (int)strlen(body), body);
 
     // Allocate buffer for the full HTTP response
     char http_response[response_length + 1];
-    snprintf(http_response, sizeof(http_response), http_response_template, (int)strlen(body), body);
+    snprintf(http_response, sizeof(http_response), http_response_template,
+        (int)strlen(body) + sizeof("Mirror:  \n"), body);
 
     // Send the HTTP response to the client
     send(client_socket, http_response, response_length, 0);
