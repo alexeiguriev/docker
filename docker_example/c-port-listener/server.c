@@ -1,83 +1,102 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <arpa/inet.h>
 
 #define PORT 8080
+#define MAX_CLIENTS 10
 #define BUFFER_SIZE 1024
-#define LOG_FILE "received_messages.log"
 
-void handle_client(int client_socket, FILE *log_file) {
+void handle_client(int client_socket) {
     char buffer[BUFFER_SIZE];
-    int bytes_read;
+    char method[10];
+    char path[1024];
 
-    while ((bytes_read = read(client_socket, buffer, BUFFER_SIZE)) > 0) {
-        buffer[bytes_read] = '\0';
-        fprintf(log_file, "%s\n", buffer);  // Write message to log file
-        fflush(log_file);                   // Ensure the file is written to disk
+    // Read the request from the client
+    int read_size = recv(client_socket, buffer, sizeof(buffer) - 1, 0);
+    if (read_size < 0) {
+        perror("recv failed");
+        close(client_socket);
+        return;
     }
 
-    if (bytes_read < 0) {
-        perror("Read failed");
+    buffer[read_size] = '\0';  // Null-terminate the received message
+    printf("Received request:\n%s\n", buffer);  // Print the received request
+
+    // Parse the request to get the method and path (only basic parsing)
+    sscanf(buffer, "%s %s", method, path);
+
+    // Handle POST method and extract the message from the body
+    char *body = strstr(buffer, "\r\n\r\n");
+    if (body != NULL) {
+        body += 4;  // Skip the "\r\n\r\n" part to reach the body content
+    } else {
+        body = "No body found";
     }
+
+    // Prepare the HTTP response
+    const char *http_response_template =
+        "HTTP/1.1 200 OK\r\n"
+        "Content-Type: text/plain\r\n"
+        "Connection: close\r\n"
+        "Content-Length: %d\r\n"
+        "\r\n"
+        "%s";
+
+    // Calculate the length of the response content
+    int response_length = snprintf(NULL, 0, http_response_template, (int)strlen(body), body);
+
+    // Allocate buffer for the full HTTP response
+    char http_response[response_length + 1];
+    snprintf(http_response, sizeof(http_response), http_response_template, (int)strlen(body), body);
+
+    // Send the HTTP response to the client
+    send(client_socket, http_response, response_length, 0);
+
     close(client_socket);
 }
 
 int main() {
-    int server_socket, client_socket;
+    int server_socket, client_socket, client_len;
     struct sockaddr_in server_addr, client_addr;
-    socklen_t addr_len = sizeof(client_addr);
-    FILE *log_file;
 
-    // Create a socket
+    // Create server socket
     server_socket = socket(AF_INET, SOCK_STREAM, 0);
-    if (server_socket == -1) {
-        perror("Socket creation failed");
+    if (server_socket < 0) {
+        perror("Could not create socket");
         exit(EXIT_FAILURE);
     }
 
-    // Bind the socket to the port
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = INADDR_ANY;
     server_addr.sin_port = htons(PORT);
-    
-    if (bind(server_socket, (struct sockaddr*)&server_addr, sizeof(server_addr)) == -1) {
+
+    // Bind the socket to the address
+    if (bind(server_socket, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
         perror("Bind failed");
-        close(server_socket);
         exit(EXIT_FAILURE);
     }
 
     // Listen for incoming connections
-    if (listen(server_socket, 5) == -1) {
+    if (listen(server_socket, MAX_CLIENTS) < 0) {
         perror("Listen failed");
-        close(server_socket);
         exit(EXIT_FAILURE);
     }
 
-    printf("Server is listening on port %d...\n", PORT);
+    printf("Server listening on port %d\n", PORT);
 
-    // Open log file to store received messages
-    log_file = fopen(LOG_FILE, "a");
-    if (!log_file) {
-        perror("Failed to open log file");
-        close(server_socket);
+    // Accept incoming client connections
+    client_len = sizeof(client_addr);
+    while ((client_socket = accept(server_socket, (struct sockaddr*)&client_addr, &client_len)) >= 0) {
+        handle_client(client_socket);
+    }
+
+    if (client_socket < 0) {
+        perror("Accept failed");
         exit(EXIT_FAILURE);
     }
 
-    while (1) {
-        // Accept an incoming connection
-        client_socket = accept(server_socket, (struct sockaddr*)&client_addr, &addr_len);
-        if (client_socket == -1) {
-            perror("Accept failed");
-            continue;
-        }
-
-        printf("Connected to client...\n");
-        handle_client(client_socket, log_file);
-    }
-
-    fclose(log_file);
     close(server_socket);
     return 0;
 }
