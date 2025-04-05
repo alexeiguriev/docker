@@ -62,6 +62,8 @@ int main() {
     int server_socket, client_socket, client_len;
     struct sockaddr_in server_addr, client_addr;
 
+    setbuf(stdout, NULL);
+    
     // Create server socket
     server_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (server_socket < 0) {
