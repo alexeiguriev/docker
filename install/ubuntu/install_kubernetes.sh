@@ -43,6 +43,19 @@ else
     echo "Warning: Virtualization is not supported on this system."
 fi
 
+# Check if current user is already in the docker group
+if groups $USER | grep &>/dev/null '\bdocker\b'; then
+    echo "✅ User '$USER' is already in the 'docker' group."
+else
+    echo "🔧 Adding user '$USER' to the 'docker' group..."
+    sudo usermod -aG docker $USER
+    echo "🔄 Applying group change to current session..."
+    newgrp docker <<EONG
+echo "✅ Docker group membership applied. You can now run docker without sudo."
+docker run hello-world
+EONG
+fi
+
 # Start Minikube
 print_heading "Starting Minikube"
 minikube start --driver=docker
