@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: alexeiguriev/c-web-server
+  repository: your-dockerhub-username/c-web-server
   tag: latest
   pullPolicy: IfNotPresent
 
