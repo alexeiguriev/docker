@@ -7,3 +7,5 @@ netstat --version
 
 sudo apt install locate -y
 locate --v
+
+sudo snap install act
