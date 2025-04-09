@@ -48,7 +48,7 @@ if groups $USER | grep &>/dev/null '\bdocker\b'; then
     echo "✅ User '$USER' is already in the 'docker' group."
 else
     echo "🔧 Adding user '$USER' to the 'docker' group..."
-    sudo usermod -aG docker $USER
+    sudo usermod -aG docker $USER && newgrp docker
     echo "🔄 Applying group change to current session..."
     newgrp docker <<EONG
 echo "✅ Docker group membership applied. You can now run docker without sudo."
