@@ -23,13 +23,13 @@ kubectl get svc
 ### 🌐 Access the App (on Minikube):
 
 ```
-minikube service c-app-service
+minikube service c-app
 ```
 
 Or if using Docker Desktop Kubernetes, run:
 
 ```
-kubectl get svc c-app-service
+kubectl get svc c-app
 ```
 
 Look for the NodePort and access it via:
