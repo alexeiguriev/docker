@@ -1,41 +1,43 @@
-Great move! Deploying via Docker Hub is the next step toward a real-world setup 🚀  
-Here’s a clean breakdown of how to switch from **Minikube-local image** to **Docker Hub-pushed image**:
+### Preflight steps
+### Docker login
+
+```
+docker login
+```
+
+Let’s go! 🚀 Here's a clean step-by-step to run your **C web server application** using **Helm** now that your environment is ready.
 
 ---
 
-### ✅ **Step 1: Tag & Push to Docker Hub**
+### ✅ Step 1: Verify cluster is running
 
-Assuming your Docker Hub username is `yourusername`, run:
+Just to be sure:
 
 ```bash
-# Build the Docker image
+minikube status
+kubectl get nodes
+```
+
+Make sure the node is `Ready`.
+
+---
+
+### ✅ Step 2: Verify your Docker image exists on Docker Hub
+
+If you haven’t pushed the latest yet:
+
+```bash
 docker build -t alexeiguriev/c-web-server:latest .
-
-# Log in to Docker Hub
-docker login
-
-# Push the image
 docker push alexeiguriev/c-web-server:latest
 ```
 
-> Replace `yourusername` with your actual Docker Hub account name.
+(Replace with your Docker Hub username if needed)
 
 ---
 
-### ✅ **Step 2: Update Helm values**
+### ✅ Step 3: Install the Helm chart
 
-Update the image config in your Helm `values.yaml`:
-
-#### 📄 `helm/c-app/values.yaml`
-
-```yaml
-image:
-  repository: alexeiguriev/c-web-server
-  tag: latest
-  pullPolicy: IfNotPresent
-```
-
-Or override via command line:
+From the root of your project:
 
 ```bash
 helm upgrade --install c-web helm/c-app \
@@ -45,48 +47,39 @@ helm upgrade --install c-web helm/c-app \
 
 ---
 
-### ✅ **Step 3: Ensure Minikube can pull from Docker Hub**
-
-If your Docker Hub image is **public**, you're good.
-
-If it's **private**, you need to create a Kubernetes secret:
+### ✅ Step 4: Check that it’s running
 
 ```bash
-kubectl create secret docker-registry regcred \
-  --docker-username=alexeiguriev \
-  --docker-password=DockerPassword123 \
-  --docker-email=alexeiguriev1@gmail.com
+kubectl get pods
+kubectl get svc
 ```
 
-Then reference it in your `deployment.yaml`:
-
-```yaml
-spec:
-  template:
-    spec:
-      imagePullSecrets:
-        - name: regcred
-```
+You should see:
+- A pod for your deployment
+- A service called `c-web`
 
 ---
 
-### ✅ **Step 4: Redeploy with Helm**
+### ✅ Step 5: Access the app
 
-```bash
-helm uninstall c-web
-helm install c-web helm/c-app \
-  --set image.repository=alexeiguriev/c-web-server \
-  --set image.tag=latest
-```
-
----
-
-### ✅ **Step 5: Access it**
+Use Minikube to get the service URL:
 
 ```bash
 minikube service c-web --url
 ```
 
+Then run:
+
+```bash
+curl $(minikube service c-web --url)
+```
+
+You should see:
+
+```text
+Hello from C!
+```
+
 ---
 
-Want me to update the Helm chart's `deployment.yaml` to optionally use `imagePullSecrets`?
+Let me know what you get from each step and I’ll help you troubleshoot or celebrate 🥳
