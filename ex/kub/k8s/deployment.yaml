@@ -6,11 +6,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: c-web
+      app: c-app
   template:
     metadata:
       labels:
-        app: c-web
+        app: c-app
     spec:
       containers:
         - name: c-web-server
