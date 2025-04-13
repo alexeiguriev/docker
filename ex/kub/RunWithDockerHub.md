@@ -65,13 +65,13 @@ You should see:
 Use Minikube to get the service URL:
 
 ```bash
-minikube service c-web --url
+minikube service c-app --url
 ```
 
 Then run:
 
 ```bash
-curl $(minikube service c-web --url)
+curl $(minikube service c-app --url)
 ```
 
 You should see:
