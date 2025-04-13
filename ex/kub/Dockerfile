@@ -1,21 +1,18 @@
-# Use a minimal base image with build tools
-FROM gcc:12 as builder
+# ---------- Build stage ----------
+FROM alpine:latest as builder
+RUN apk add --no-cache build-base musl-dev
 
-# Create app directory
-WORKDIR /usr/src/app
-
-# Copy source and compile
+WORKDIR /app
 COPY app/main.c .
-RUN gcc -o server main.c
 
-# Use a lightweight runtime image
-FROM debian:bullseye-slim
+# Compile statically using musl
+RUN gcc -static -o server main.c
 
-# Copy compiled binary
-COPY --from=builder /usr/src/app/server /usr/local/bin/server
+# ---------- Runtime stage ----------
+FROM scratch
 
-# Expose the port the server listens on
+COPY --from=builder /app/server /server
+
 EXPOSE 8080
-
-# Run the server
-CMD ["server"]
+ENTRYPOINT ["/server"]
+    
