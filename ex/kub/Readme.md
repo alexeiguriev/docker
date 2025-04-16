@@ -13,7 +13,7 @@ This project helps you learn Kubernetes in the context of a C development workfl
 
 ### ✅ Week 2: Deployments & Configs
 - [ ] Set up ConfigMap and environment variables
-- [ ] Practice rolling updates
+- [x] Practice rolling updates
 - [ ] Debug using `kubectl logs` and `exec`
 
 ### ✅ Week 3: Networking & Observability
