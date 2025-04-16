@@ -1,0 +1,6 @@
+apiVersion: v2
+name: c-logger
+description: A simple HTTP logging service written in C
+type: application
+version: 0.1.0
+appVersion: "1.0"
