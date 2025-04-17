@@ -64,8 +64,8 @@ helm upgrade --install logger-python helm/logger-python \
 Then test:
 
 ```bash
-curl -X POST -d "Hello from Python logger" $(minikube service c-logger --url)
-kubectl logs -l app=c-logger
+curl -X POST -d "Test from minikube host" $(minikube service logger-python --url)
+kubectl logs -l app=logger-python
 ```
 
 ---

@@ -4,8 +4,11 @@ app = Flask(__name__)
 
 @app.route('/', methods=['POST'])
 def log_message():
-    data = request.get_data(as_text=True)
-    print(f"📥 Received log: {data}")
+    try:
+        data = request.get_data(as_text=True)
+        print(f"📥 Received log: {data}")
+    except Exception as e:
+        print(f"❌ Error reading POST body: {e}")
     return "OK\n", 200
 
 if __name__ == '__main__':
