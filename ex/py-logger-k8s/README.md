@@ -1,80 +1,73 @@
-Perfect — let's switch from Minikube-local image to **Docker Hub deployment** for your `c-logger-k8s` project. Here’s how you do it step-by-step:
+Nice pivot — implementing the logger in Python will make it lighter and easier to extend/log/store/debug.
 
 ---
 
-## 🚀 Step-by-Step: Push to Docker Hub & Deploy with Helm
+### 🚀 Python Logger Service (Flask)
+
+Here’s the full minimal Python implementation:
 
 ---
 
-### ✅ Step 1: Log in to Docker Hub
+### 📄 `app/logger.py`
 
-Make sure you're authenticated:
+```python
+from flask import Flask, request
+
+app = Flask(__name__)
+
+@app.route('/', methods=['POST'])
+def log_message():
+    data = request.get_data(as_text=True)
+    print(f"📥 Received log: {data}")
+    return "OK\n", 200
+
+if __name__ == '__main__':
+    print("📡 Logger service running on port 8081...")
+    app.run(host='0.0.0.0', port=8081)
+```
+
+---
+
+### 📄 `Dockerfile`
+
+To match your build style but using Python:
+
+```dockerfile
+FROM python:3.12-slim
+
+WORKDIR /app
+COPY app/logger.py .
+
+RUN pip install flask
+
+EXPOSE 8081
+CMD ["python", "logger.py"]
+```
+
+---
+
+### 🧪 Test it locally:
 
 ```bash
-docker logout
-docker login
+docker build -t alexeiguriev/logger-python:latest .
+docker push alexeiguriev/logger-python:latest
 ```
 
-Enter your **Docker Hub username** (`alexeiguriev`) and **password** (or [personal access token](https://hub.docker.com/settings/security) if using 2FA).
-
----
-
-### ✅ Step 2: Build & tag the Docker image
+Update Helm values:
 
 ```bash
-docker build -t alexeiguriev/c-logger:latest .
-```
-
----
-
-### ✅ Step 3: Push it to Docker Hub
-
-```bash
-docker push alexeiguriev/c-logger:latest
-```
-
-If successful, you’ll see image layers being pushed, ending in:
-
-```
-latest: digest: sha256:... size: ...
-```
-
----
-
-### ✅ Step 4: Update Helm values (or override inline)
-
-Deploy using Helm with Docker Hub image:
-
-```bash
-helm upgrade --install c-logger helm/c-logger \
-  --set image.repository=alexeiguriev/c-logger \
+helm upgrade --install logger-python helm/logger-python \
+  --set image.repository=alexeiguriev/logger-python \
   --set image.tag=latest
 ```
 
----
-
-### ✅ Step 5: Access the service
+Then test:
 
 ```bash
-minikube service c-logger --url
-```
-
-Then:
-
-```bash
-curl -X POST -d "Hello from Docker Hub!" $(minikube service c-logger --url)
-```
-
----
-
-### ✅ Step 6: View logs to confirm
-
-```bash
+curl -X POST -d "Hello from Python logger" $(minikube service c-logger --url)
 kubectl logs -l app=c-logger
 ```
 
-You should see your POST payload printed like:
+---
 
-```
-📥 Received log: Hello from Docker Hub!
-```
+Want me to replace the chart name and files from `c-logger` to `logger-python` to reflect this switch?

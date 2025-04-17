@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: alexeiguriev/c-logger
+  repository: alexeiguriev/logger-python
   tag: latest
   pullPolicy: IfNotPresent
 
