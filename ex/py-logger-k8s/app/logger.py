@@ -1,14 +1,26 @@
 from flask import Flask, request
+from datetime import datetime
 
 app = Flask(__name__)
+LOG_FILE = "/logs/requests.log"
 
 @app.route('/', methods=['POST'])
 def log_message():
+    data = request.get_data(as_text=True)
+    timestamp = datetime.utcnow().isoformat()
+
+    log_entry = f"[{timestamp}] {data}"
+    
+    # Log to stdout
+    print(f"📥 Received log: {log_entry}")
+
+    # Log to file
     try:
-        data = request.get_data(as_text=True)
-        print(f"📥 Received log: {data}")
+        with open(LOG_FILE, "a") as f:
+            f.write(log_entry + "\n")
     except Exception as e:
-        print(f"❌ Error reading POST body: {e}")
+        print(f"❌ Failed to write to log file: {e}")
+
     return "OK\n", 200
 
 if __name__ == '__main__':

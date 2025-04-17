@@ -20,3 +20,9 @@ spec:
             - containerPort: {{ .Values.service.port }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: logs
+              mountPath: /logs
+      volumes:
+        - name: logs
+          emptyDir: {}
