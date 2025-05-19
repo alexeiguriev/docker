@@ -2,4 +2,19 @@
 docker build -t <image name> .              -- create a image
 docker images                               -- check the images
 docker run -d <immage name>                 -- run docker image
+docker run -d -p 8081:8081 <image name>     -- run docker image with specific port
 docker logs -f abcd1234efgh                 -- to see the logs
+
+
+- get container resourcies
+docker stats <container_name_or_id>
+
+- network monitoring
+docker exec -it <container_name> netstat -tunapl
+or
+docker inspect -f '{{ .NetworkSettings.IPAddress }}' <container_name>
+
+- Attach a shall using exec
+docker exec -it <container-name> /bin/sh
+or
+docker exec -it <container-name> /bin/bash
