@@ -1,0 +1,5 @@
+apiVersion: v2
+name: ax-app
+description: A simple logger and executor microservice
+version: 0.1.0
+appVersion: "1.0"

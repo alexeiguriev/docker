@@ -1,0 +1,54 @@
+# Deployment Instructions
+
+## build the docker images
+```sh
+make build
+```
+**check if docker images created**
+```sh
+docker images
+```
+shloud be the images: 'api-image' and 'executor-image'
+
+## Deploying with Helm
+
+1. **Install with helm**
+    ```sh
+    make helm-install
+    ```
+    or
+    ```sh
+    make helm-install STAGE=prod
+    ```
+
+2. **To uninstall**:
+    ```sh
+    make helm-uninstall
+    ```
+
+## Deploying with Kubernetes Manifests
+
+1. **Apply Manifests**:
+    ```sh
+    make deploy
+    ```
+
+2. **To remove the deployment**:
+    ```sh
+    make clean
+    ```
+
+## Test
+    ```sh
+    make test
+    ```
+
+    ```sh
+    make curl
+    ```
+    
+    ```sh
+    make curl-service-node
+    ```
+
+# For more detailed -> check the Makefile

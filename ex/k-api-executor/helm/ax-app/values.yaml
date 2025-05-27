@@ -1,0 +1,10 @@
+api:
+  image: api-image
+  port: 8081
+  nodePort: 30001
+
+executor:
+  replicas: 1
+  image: executor-image
+  port: 8082
+  nodePort: 30002

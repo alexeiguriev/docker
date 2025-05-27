@@ -7,14 +7,31 @@ API_SERVICE_PORT=30001
 
 .PHONY: build deploy
 
-deploy:
-	kubectl apply -f api-configmap.yaml
+# make helm-install STAGE=prod
+helm-install:
+ifeq ($(STAGE),prod)
+	helm install ax-app ./helm/ax-app -f ./helm/ax-app/values-prod.yaml
+else
+	helm install ax-app ./helm/ax-app
+endif
 
-	kubectl apply -f api-deployment.yaml
-	kubectl apply -f api-service.yaml
 	
-	kubectl apply -f executor-deployment.yaml
-	kubectl apply -f executor-service.yaml
+helm-uninstall:
+	helm uninstall ax-app
+
+	
+helm-template:
+	helm template  ax-app ./helm/ax-app
+
+
+deploy:
+	kubectl apply -f k8s/api-configmap.yaml
+
+	kubectl apply -f k8s/api-deployment.yaml
+	kubectl apply -f k8s/api-service.yaml
+
+	kubectl apply -f k8s/executor-deployment.yaml
+	kubectl apply -f k8s/executor-service.yaml
 
 build:
 	docker build -t api-image ./api
@@ -28,21 +45,27 @@ setup:
 	eval $(minikube docker-env)
 
 clean:
-	kubectl delete -f api-deployment.yaml || true
-	kubectl delete -f api-service.yaml || true
+	kubectl delete -f k8s/api-deployment.yaml || true
+	kubectl delete -f k8s/api-service.yaml || true
 	docker rmi -f api-image || true
 
-	kubectl delete -f executor-deployment.yaml || true
-	kubectl delete -f executor-service.yaml || true
+	kubectl delete -f k8s/executor-deployment.yaml || true
+	kubectl delete -f k8s/executor-service.yaml || true
 	docker rmi -f executor-image || true
-	
-	kubectl delete -f api-configmap.yaml
 
-logs:
-	kubectl logs $(POD)
+	kubectl delete -f k8s/api-configmap.yaml
 
-test:
-	kubectl exec -it $(POD) -- curl -X POST -d "Test from minikube host" http://localhost:8081
+# Usage: make log APP=api|executor
+log:
+ifeq ($(APP),api)
+	kubectl logs deployment/api-deployment
+else ifeq ($(APP),executor)
+	kubectl logs deployment/executor-deployment
+else
+	kubectl logs deployment/api-deployment
+endif
+
+
 
 curl-pod:
 	kubectl exec -it $(POD) -- curl -X POST -d "Test from minikube host" http://localhost:8081
@@ -51,7 +74,10 @@ curl-service:
 	curl -X POST -d "Test from minikube host"  http://api-service.default.svc.cluster.local:8081/
 	
 curl-service-node:
-	curl -X POST -d "Test from minikube host"  http://$(MINIKUBE_IP):$(API_SERVICE_PORT)/
+	curl -X POST -d "test msg from host"  http://$(MINIKUBE_IP):$(API_SERVICE_PORT)/
+
+curl: curl-service-node
+test: curl
 
 execpod:
 	kubectl exec -it $(POD) -- bash

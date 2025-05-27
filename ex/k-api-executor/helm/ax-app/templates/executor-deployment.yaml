@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: executor-deployment
+spec:
+  replicas: {{ .Values.executor.replicas }}
+  selector:
+    matchLabels:
+      app: executor
+  template:
+    metadata:
+      labels:
+        app: executor
+    spec:
+      containers:
+      - name: executor-container
+        image: {{ .Values.executor.image }}
+        imagePullPolicy: Never
+        ports:
+        - containerPort: {{ .Values.executor.port }}
