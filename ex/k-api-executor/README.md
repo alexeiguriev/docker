@@ -58,13 +58,13 @@ shloud be the images: 'api-image' and 'executor-image'
 ## Test
     ```sh
     make test
-    ```
 
-    ```sh
+    or
+
     make curl
-    ```
     
-    ```sh
+    or
+    
     make curl-service-node
     ```
 
