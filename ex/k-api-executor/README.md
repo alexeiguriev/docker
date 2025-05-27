@@ -56,7 +56,6 @@ shloud be the images: 'api-image' and 'executor-image'
     ```
 
 ## Test
-    `
     make test
 
     or
@@ -66,6 +65,5 @@ shloud be the images: 'api-image' and 'executor-image'
     or
 
     make curl-service-node
-    `
 
 # For more detailed -> check the Makefile
