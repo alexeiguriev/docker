@@ -38,6 +38,23 @@ shloud be the images: 'api-image' and 'executor-image'
     make clean
     ```
 
+## Deploying skaffold
+
+1. **build docker images**:
+    ```sh
+    skaffold build
+    ```
+
+2. **Build and deploy**:
+    ```sh
+    skaffold run
+    ```
+    
+3. **Deploy existing docker images**:
+    ```sh
+    skaffold deploy --images api-image=api-image:<tag> --images executor-image=executor-image:<tag>
+    ```
+
 ## Test
     ```sh
     make test

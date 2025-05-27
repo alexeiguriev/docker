@@ -1,0 +1,55 @@
+apiVersion: skaffold/v4beta6
+kind: Config
+metadata:
+  name: ax-app
+
+build:
+  artifacts:
+    - image: api-image
+      context: api
+      docker:
+        dockerfile: Dockerfile
+    - image: executor-image
+      context: executor
+      docker:
+        dockerfile: Dockerfile
+  local:
+    push: false
+
+deploy:
+  helm:
+    releases:
+      - name: ax-app
+        chartPath: helm/ax-app
+        valuesFiles:
+          - helm/ax-app/values.yaml
+        version: v1
+        setValues:
+          api.port: 8081
+          executor.port: 8082
+
+profiles:
+  - name: prod
+    deploy:
+      helm:
+        releases:
+          - name: ax-app
+            chartPath: helm/ax-app
+            valuesFiles:
+              - helm/ax-app/values-prod.yaml
+            version: v1
+            setValues:
+              api.port: 8081
+              executor.port: 8082
+  - name: qa
+    deploy:
+      helm:
+        releases:
+          - name: ax-app
+            chartPath: helm/ax-app
+            valuesFiles:
+              - helm/ax-app/values-qa.yaml
+            version: v1
+            setValues:
+              api.port: 8081
+              executor.port: 8082
